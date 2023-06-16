@@ -1,3 +1,12 @@
+"use client";
+
+import MessageHeader from "@/components/messages/MessageHeader";
+import MessageLayout from "@/components/messages/MessageLayout";
+
 export default function Home() {
-  return <main className="bg-gray-50"></main>;
+  return (
+    <MessageLayout>
+      <MessageHeader />
+    </MessageLayout>
+  );
 }

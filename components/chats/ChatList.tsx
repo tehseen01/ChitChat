@@ -1,7 +1,7 @@
 import React from "react";
-import { SingleChat } from "./SingleChat";
+import SingleChat from "./SingleChat";
 
-export const ChatList = () => {
+const ChatList = () => {
   return (
     <div>
       <SingleChat />
@@ -23,3 +23,5 @@ export const ChatList = () => {
     </div>
   );
 };
+
+export default ChatList;

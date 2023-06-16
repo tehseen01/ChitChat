@@ -1,5 +1,9 @@
-import { Sidebar } from "./components";
+import Sidebar from "@/components/Sidebar";
+import { ThemeProvider } from "../components/ThemeProvider";
 import "./globals.css";
+import { Providers } from "../redux/Providers";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 export const metadata = {
   title: "Create Next App",
@@ -13,11 +17,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <div className="md:grid grid-cols-[auto_1fr] relative ">
-          <Sidebar />
-          {children}
-        </div>
+      <body className="bg-background">
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+            <Suspense fallback={<Loading />}>
+              <Sidebar>{children}</Sidebar>
+            </Suspense>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
