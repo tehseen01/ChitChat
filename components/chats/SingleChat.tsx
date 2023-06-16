@@ -1,12 +1,17 @@
+"use client";
+import { useAppDispatch } from "@/redux/hooks";
+import { setOpenChat } from "@/redux/slice/chatSlice";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export const SingleChat = () => {
+const SingleChat = () => {
+  const dispatch = useAppDispatch();
+
   return (
-    <Link
-      href={"/#"}
-      className="p-2 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#60626782]"
+    <div
+      onClick={() => dispatch(setOpenChat(true))}
+      className="p-2 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#60626782] cursor-pointer"
     >
       <div className="w-14 h-14">
         <Image
@@ -35,6 +40,8 @@ export const SingleChat = () => {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
+
+export default SingleChat;

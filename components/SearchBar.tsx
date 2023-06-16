@@ -2,8 +2,10 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useRef, useState } from "react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export const SearchBar = () => {
+const SearchBar = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -12,6 +14,28 @@ export const SearchBar = () => {
     if (inputRef.current !== null) {
       inputRef.current.focus();
     }
+  };
+
+  const handleSearchUser = async () => {
+    console.log("running");
+    const q = query(
+      collection(db, "users"),
+      where("displayName", "==", inputValue)
+    );
+
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.data());
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.code === "Enter" && handleSearchUser();
   };
 
   return (
@@ -37,7 +61,10 @@ export const SearchBar = () => {
         onChange={(e) => setInputValue(e.target.value)}
         onFocus={() => setIsInputFocused(true)}
         onBlur={() => setIsInputFocused(false)}
+        onKeyDown={handleKeyDown}
       />
     </div>
   );
 };
+
+export default SearchBar;
