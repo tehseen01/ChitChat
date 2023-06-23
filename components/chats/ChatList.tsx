@@ -1,25 +1,16 @@
 import React from "react";
-import SingleChat from "./SingleChat";
+import ChatCard from "./ChatCard";
 
 const ChatList = () => {
   return (
     <div>
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
-      <SingleChat />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
+      <ChatCard type="chat" />
     </div>
   );
 };

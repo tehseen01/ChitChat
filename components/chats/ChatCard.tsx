@@ -1,16 +1,19 @@
 "use client";
 import { useAppDispatch } from "@/redux/hooks";
-import { setOpenChat } from "@/redux/slice/chatSlice";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const SingleChat = () => {
+interface ChatCardProp {
+  type: string;
+}
+
+const ChatCard = ({ type }: ChatCardProp) => {
   const dispatch = useAppDispatch();
 
   return (
-    <div
-      onClick={() => dispatch(setOpenChat(true))}
+    <Link
+      href={`/chat/123`}
       className="p-2 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#60626782] cursor-pointer"
     >
       <div className="w-14 h-14">
@@ -27,21 +30,25 @@ const SingleChat = () => {
       <div className="flex-1">
         <div className="flex justify-between">
           <h2 className="font-semibold dark:text-white/90">Suhana shah</h2>
-          <div className="flex text-sm items-center justify-center w-6 h-6 dark:text-white/80">
-            <span>Fri</span>
-          </div>
+          {type === "chat" && (
+            <div className="flex text-sm items-center justify-center w-6 h-6 dark:text-white/80">
+              <span>Fri</span>
+            </div>
+          )}
         </div>
         <div className="flex justify-between">
           <p className="text-slate-600 dark:text-white/60">
             Last message was this
           </p>
-          <div className="flex bg-gray-400/60 rounded-full text-white w-6 h-6 items-center justify-center dark:bg-gray-600 dark:text-white">
-            <span>3</span>
-          </div>
+          {type === "chat" && (
+            <div className="flex bg-gray-400/60 rounded-full text-white w-6 h-6 items-center justify-center dark:bg-gray-600 dark:text-white">
+              <span>3</span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
-export default SingleChat;
+export default ChatCard;

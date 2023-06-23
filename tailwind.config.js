@@ -31,6 +31,9 @@ module.exports = {
           foreground: "hsl(var(--accent-foreground))",
         },
       },
+      boxShadow: {
+        shadow: "var(--shadow)"
+      }
     },
 
     plugins: [],

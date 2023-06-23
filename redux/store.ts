@@ -1,11 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./slice/authSlice";
 import chatSlice from "./slice/chatSlice";
+import contactSlice from "./slice/contactSlice";
+import searchSlice from "./slice/searchSlice";
+import modalSlice from "./slice/modalSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authSlice,
     chat: chatSlice,
+    contact: contactSlice,
+    search: searchSlice,
+    modal: modalSlice,
   },
 });
 

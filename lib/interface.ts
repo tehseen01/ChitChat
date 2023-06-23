@@ -3,4 +3,5 @@ export interface IUser {
   uid: string;
   photoURL: string;
   email: string;
+  username: string;
 }
