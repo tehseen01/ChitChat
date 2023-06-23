@@ -2,13 +2,21 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useRef, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { query, where, getDocs } from "firebase/firestore";
+import { userDocRef } from "@/lib/firebase";
+import {
+  setInputFocus,
+  setSearchResult,
+  setSearchResultBox,
+} from "@/redux/slice/searchSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 const SearchBar = () => {
+  const dispatch = useAppDispatch();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+
+  const { searchInput, searchResult, searchResultBox, inputFocus } =
+    useAppSelector((state) => state.search);
 
   const handleInputIcon = () => {
     if (inputRef.current !== null) {
@@ -17,17 +25,12 @@ const SearchBar = () => {
   };
 
   const handleSearchUser = async () => {
-    console.log("running");
-    const q = query(
-      collection(db, "users"),
-      where("displayName", "==", inputValue)
-    );
+    const q = query(userDocRef, where("displayName", "==", searchInput));
 
     try {
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.data());
+        dispatch(setSearchResult(doc.data()));
       });
     } catch (err) {
       console.log(err);
@@ -41,13 +44,13 @@ const SearchBar = () => {
   return (
     <div
       className={clsx(
-        isInputFocused ? " border-blue-400" : " border-gray-100",
+        inputFocus ? " border-blue-400" : " border-gray-100",
         "flex items-center bg-gray-100 rounded-3xl px-2 border-2"
       )}
     >
       <MagnifyingGlassIcon
         className={clsx(
-          isInputFocused ? "text-blue-400" : "text-gray-400",
+          inputFocus ? "text-blue-400" : "text-gray-400",
           "w-6 h-6 "
         )}
         onClick={handleInputIcon}
@@ -57,12 +60,18 @@ const SearchBar = () => {
         placeholder="Search..."
         className="bg-transparent w-full focus:outline-none focus:ring-0 focus:border-0 py-2 px-1"
         ref={inputRef}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onFocus={() => setIsInputFocused(true)}
-        onBlur={() => setIsInputFocused(false)}
+        value={searchInput}
+        onChange={(e) => dispatch(setSearchResult(e.target.value))}
+        onFocus={() => dispatch(setInputFocus(true))}
+        onBlur={() => dispatch(setInputFocus(false))}
+        onClick={() => dispatch(setSearchResultBox(true))}
         onKeyDown={handleKeyDown}
       />
+      {searchResultBox && (
+        <div className="absolute top-[60px] inset-x-0 h-[calc(100vh_-_60px)] bg-gray-50 p-2">
+          result
+        </div>
+      )}
     </div>
   );
 };

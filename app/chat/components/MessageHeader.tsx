@@ -13,7 +13,7 @@ const MessageHeader = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   return (
-    <div className="flex items-center gap-4 p-3 border-0 border-b">
+    <div className="flex items-center gap-4 p-3 border-0 border-b bg-background">
       <div
         className="cursor-pointer sm:hidden w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
         onClick={() => dispatch(setOpenChat(false))}

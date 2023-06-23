@@ -6,6 +6,8 @@
   :root {
     --right-profile-width: 26rem;
 
+    --shadow: 0 0.25rem 0.5rem 0.125rem rgba(114, 114, 114, 0.25);
+
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
 
@@ -30,7 +32,7 @@
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 0 0% 12.94%;
     --foreground: 213 31% 91%;
 
     --muted: 223 47% 11%;
@@ -73,5 +75,11 @@
 
   .w-100-right-profile {
     width: calc(100% - var(--right-profile-width));
+  }
+
+  .flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }

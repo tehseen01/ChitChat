@@ -13,8 +13,11 @@ import { useTheme } from "next-themes";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Link from "next/link";
+import { openContact } from "@/redux/slice/contactSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 const MainMenu = () => {
+  const dispatch = useAppDispatch();
   const { theme, setTheme } = useTheme();
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -59,7 +62,7 @@ const MainMenu = () => {
       <div
         className={clsx(
           openMenu ? "scale-100" : "scale-0",
-          "absolute top-16 right-3 origin-top-right transition-transform shadow-[0_0.25rem_0.5rem_0.125rem_rgba(114,114,114,0.25)] w-[70%] h-56 rounded-lg backdrop-blur-[10px]"
+          "absolute top-16 right-3 origin-top-right transition-transform shadow-shadow w-[70%] h-56 rounded-lg backdrop-blur-[10px]"
         )}
       >
         <div className="">
@@ -84,13 +87,13 @@ const MainMenu = () => {
               <span className={spanClass}></span>
             </label>
           </div>
-          <Link
-            href="/#123"
-            className="flex items-center gap-4 hover:bg-black/5 px-2 py-1 rounded-md mx-2 my-1"
+          <div
+            onClick={() => dispatch(openContact(true))}
+            className="flex items-center gap-4 hover:bg-black/5 px-2 py-1 rounded-md mx-2 my-1 cursor-pointer"
           >
             <UserIcon className="w-5 h-5 text-gray-600" />
-            <span className="flex-1 font-medium text-sm">Profile</span>
-          </Link>
+            <span className="flex-1 font-medium text-sm">Contacts</span>
+          </div>
           <div
             className="flex items-center gap-4 hover:bg-black/5 px-2 py-1 rounded-md mx-2 my-1 cursor-pointer"
             onClick={handleLogOut}

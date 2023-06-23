@@ -3,9 +3,9 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, userDocRef } from "@/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { SignUpFormData, signUpSchema } from "@/lib/validation/signup";
 
 const SignUpForm = () => {
@@ -14,32 +14,49 @@ const SignUpForm = () => {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isDirty },
+    setError,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
 
   const onSubmit: SubmitHandler<SignUpFormData> = async (data) => {
     try {
-      const res = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
+      const usernameDoc = query(
+        userDocRef,
+        where("username", "==", data.username)
       );
 
-      await updateProfile(res.user, {
-        displayName: data.name,
-      });
+      const snapshot = await getDocs(usernameDoc);
 
-      await setDoc(doc(db, "users", res.user.uid), {
-        uid: res.user.uid,
-        displayName: data.name,
-        email: data.email,
-        photoURL: res.user.photoURL,
-      });
+      if (!snapshot.empty) {
+        setError("username", {
+          type: "manual",
+          message: "Username already exists",
+        });
+        console.log("username already exist");
+      } else {
+        const res = await createUserWithEmailAndPassword(
+          auth,
+          data.email,
+          data.password
+        );
 
-      await setDoc(doc(db, "chats", res.user.uid), {});
+        await updateProfile(res.user, {
+          displayName: data.name,
+        });
 
-      reset();
+        await setDoc(doc(db, "users", res.user.uid), {
+          uid: res.user.uid,
+          displayName: data.name,
+          username: data.username,
+          email: data.email,
+          photoURL: res.user.photoURL,
+        });
+
+        await setDoc(doc(db, "chats", res.user.uid), {});
+
+        reset();
+      }
     } catch (err) {
       console.log(err);
     }
@@ -65,7 +82,7 @@ const SignUpForm = () => {
           <p className="text-sm text-red-500">{errors.name.message}</p>
         )}
       </div>
-      {/* <div className="flex flex-col py-2">
+      <div className="flex flex-col py-2">
         <label htmlFor="username">Username</label>
         <input
           type="text"
@@ -76,7 +93,7 @@ const SignUpForm = () => {
         {errors.username && (
           <p className="text-sm text-red-500">{errors.username.message}</p>
         )}
-      </div> */}
+      </div>
       <div className="flex flex-col py-2">
         <label htmlFor="email">Email</label>
         <input
