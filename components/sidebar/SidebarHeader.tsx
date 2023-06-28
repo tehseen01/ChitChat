@@ -4,11 +4,11 @@ import Image from "next/image";
 import React, { SetStateAction } from "react";
 import SearchBar from "./SearchBar";
 import MainMenu from "./MainMenu";
-import useFirstLetter from "@/hooks/useFirstLetter";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import BackBtn from "../helper/BackBtn";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { setSearchResultBox } from "@/redux/slice/searchSlice";
+import ProfileImage from "../profile/ProfileImage";
 
 interface SidebarHeaderProp {
   currentUser: IUser;
@@ -21,10 +21,6 @@ const SidebarHeader = ({
   setOpenProfile,
   openProfile,
 }: SidebarHeaderProp) => {
-  const firstLetter = useFirstLetter({
-    displayName: currentUser?.displayName,
-  });
-
   const dispatch = useAppDispatch();
   const { searchResultBox } = useAppSelector((state) => state.search);
 
@@ -39,20 +35,11 @@ const SidebarHeader = ({
         </BackBtn>
       ) : (
         <div onClick={handleOpenProfile} className="cursor-pointer">
-          {currentUser ? (
-            currentUser.photoURL === null ? (
-              <div className="w-10 h-10 bg-yellow-500 flex items-center justify-center rounded-full">
-                <span className="font-semibold text-lg">{firstLetter}</span>
-              </div>
-            ) : (
-              <Image
-                src={currentUser.photoURL}
-                alt={currentUser.displayName}
-                width={50}
-                height={50}
-              />
-            )
-          ) : null}
+          <ProfileImage
+            displayName={currentUser.displayName}
+            photoURL={currentUser.photoURL}
+            variant="small"
+          />
         </div>
       )}
 

@@ -45,7 +45,7 @@ const Contacts = () => {
         if (docSnap.exists()) {
           const users = await docSnap.data();
 
-          const userPromises = users.userId.map(async (ref) => {
+          const userPromises = users.userId.map(async (ref: any) => {
             const userDoc = await getDoc(ref.user);
             return userDoc.data();
           });
@@ -62,7 +62,7 @@ const Contacts = () => {
     };
 
     getContacts();
-  }, [dispatch]);
+  }, [dispatch, currentUser.uid]);
 
   return (
     <div className="absolute inset-0 bg-background">
@@ -95,7 +95,13 @@ const Contacts = () => {
           {allContacts ? (
             allContacts.map((contact) => (
               <div key={contact.uid}>
-                <ChatCard type="contact" />
+                <ChatCard
+                  type="contact"
+                  id={contact.uid}
+                  displayName={contact.displayName}
+                  photoURL={contact.photoURL}
+                  username={contact.username}
+                />
               </div>
             ))
           ) : (

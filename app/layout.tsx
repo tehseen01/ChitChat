@@ -16,8 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="light" style={{ colorScheme: "light" }}>
-      <body suppressHydrationWarning={true}>
+    <html
+      lang="en"
+      className="light"
+      style={{ colorScheme: "light" }}
+      suppressHydrationWarning
+    >
+      <body>
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <Suspense fallback={<Loading />}>
