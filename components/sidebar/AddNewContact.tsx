@@ -75,15 +75,15 @@ const AddNewContact = () => {
         const existingUsers = contactData.userId;
 
         const userExists = existingUsers.some(
-          (user) => user.user.id === userRef.id
+          (user: any) => user.user.id === userRef.id
         );
 
         if (!userExists) {
           await updateDoc(doc(db, "contacts", currentUser.uid), {
-            userId: [
-              ...existingUsers,
-              { user: userRef, date: Timestamp.now() },
-            ],
+            userId: arrayUnion({
+              user: userRef,
+              date: Timestamp.now(),
+            }),
           });
           console.log("User added to contact list");
         } else {

@@ -1,41 +1,44 @@
 "use client";
 
-import { useAppDispatch } from "@/redux/hooks";
-import { openChatUserProfile, setOpenChat } from "@/redux/slice/chatSlice";
+import BackBtn from "@/components/helper/BackBtn";
+import ProfileImage from "@/components/profile/ProfileImage";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { openChatUserProfile } from "@/redux/slice/chatSlice";
 import {
   ArrowLeftIcon,
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
-import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 
 const MessageHeader = () => {
+  const { currentUser } = useAppSelector((state) => state.auth);
+  const { singleChat } = useAppSelector((state) => state.chat);
+
   const dispatch = useAppDispatch();
   const router = useRouter();
   return (
-    <div className="flex items-center gap-4 p-3 border-0 border-b bg-background">
-      <div
-        className="cursor-pointer sm:hidden w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
-        onClick={() => dispatch(setOpenChat(false))}
-      >
+    <div className="flex items-center gap-2 p-3 border-0 border-b bg-background">
+      <BackBtn onClick={() => router.back()}>
         <ArrowLeftIcon className="w-6 h-6" />
-      </div>
+      </BackBtn>
       <div
         className="flex-1 flex items-center cursor-pointer gap-2"
         onClick={() => dispatch(openChatUserProfile(true))}
       >
-        <div className="w-10 h-10">
-          <Image
-            src={
-              "https://images.pexels.com/photos/432059/pexels-photo-432059.jpeg?auto=compress&cs=tinysrgb&w=600"
-            }
-            alt="user image"
-            width={100}
-            height={100}
-            className="object-cover rounded-full w-full h-full"
-          />
-        </div>
-        <h1 className="font-medium ">User name</h1>
+        {singleChat &&
+          singleChat.members
+            .filter((user) => user.uid !== currentUser.uid)
+            .map((member) => (
+              <div key={member.uid} className="flex items-center gap-4">
+                <ProfileImage
+                  variant="small"
+                  displayName={member.displayName}
+                  photoURL={member.photoURL}
+                />
+                <h1 className="font-medium ">{member.displayName}</h1>
+              </div>
+            ))}
       </div>
       <div>
         <EllipsisVerticalIcon className="w-6 h-6" />

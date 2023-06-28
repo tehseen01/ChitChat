@@ -30,8 +30,13 @@ const Profile = ({ openProfile, setOpenProfile, user }: ProfileProps) => {
         </BackBtn>
         <div className="text-lg font-semibold">Profile</div>
       </div>
-
-      <ProfileImage user={user} />
+      <div className="relative">
+        <ProfileImage
+          photoURL={user.photoURL}
+          displayName={user.displayName}
+          variant="large"
+        />
+      </div>
     </div>
   );
 };

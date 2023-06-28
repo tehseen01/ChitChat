@@ -1,14 +1,15 @@
 "use client";
 
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ArrowLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import Image from "next/image";
-import React from "react";
 import BackBtn from "@/components/helper/BackBtn";
 import { openChatUserProfile } from "@/redux/slice/chatSlice";
+import ProfileImage from "@/components/profile/ProfileImage";
 
 const UserProfile = ({ isOpenProfile }: { isOpenProfile: boolean }) => {
+  const { currentUser } = useAppSelector((state) => state.auth);
+  const { singleChat } = useAppSelector((state) => state.chat);
   const dispatch = useAppDispatch();
 
   return (
@@ -26,22 +27,18 @@ const UserProfile = ({ isOpenProfile }: { isOpenProfile: boolean }) => {
       </div>
 
       <div>
-        <div className="relative">
-          <div className="w-full aspect-square">
-            <Image
-              src={
-                "https://images.pexels.com/photos/432059/pexels-photo-432059.jpeg?auto=compress&cs=tinysrgb&w=600"
-              }
-              alt="profile picture"
-              width={400}
-              height={400}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="absolute bottom-0 left-0 h-16 w-full bg-yellow-100">
-            hello
-          </div>
-        </div>
+        {singleChat &&
+          singleChat.members
+            .filter((user) => user.uid !== currentUser.uid)
+            .map((member) => (
+              <div className="relative" key={member.uid}>
+                <ProfileImage
+                  photoURL={member.photoURL}
+                  displayName={member.displayName}
+                  variant="large"
+                />
+              </div>
+            ))}
       </div>
     </div>
   );
