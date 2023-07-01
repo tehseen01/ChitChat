@@ -4,16 +4,16 @@ import Link from "next/link";
 import React from "react";
 import ProfileImage from "../profile/ProfileImage";
 import {
-  Timestamp,
-  addDoc,
   arrayUnion,
   doc,
   getDoc,
+  serverTimestamp,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { v4 as uuid } from "uuid";
+
+import { sortID } from "@/lib/sortID";
 
 interface ChatCardProp {
   type: string;
@@ -21,6 +21,7 @@ interface ChatCardProp {
   displayName: string;
   username: string;
   photoURL: string;
+  latestMessage?: string;
 }
 
 const ChatCard = ({
@@ -29,49 +30,45 @@ const ChatCard = ({
   displayName,
   photoURL,
   username,
+  latestMessage,
 }: ChatCardProp) => {
   const { currentUser } = useAppSelector((state) => state.auth);
+  const {} = useAppSelector((state) => state.chat);
   const dispatch = useAppDispatch();
 
-  const combineID = currentUser.uid + id;
-  const reversedID = id + currentUser.uid;
+  const sortedID = sortID(currentUser.uid, id);
 
-  const firstMemberRef = doc(db, "users", currentUser.uid);
-  const secondMemberRef = doc(db, "users", id);
-  const messageRef = doc(db, "messages", combineID);
+  const firstMemberRef = doc(db, "users", id);
+  const secondMemberRef = doc(db, "users", currentUser.uid);
+  const chatRef = doc(db, "chats", sortedID);
+  const firstMemberChannelRef = doc(db, "channel", currentUser.uid);
+  const secondMemberChannelRef = doc(db, "channel", id);
+  const messageRef = doc(db, "messages", sortedID);
 
   const handleChat = async () => {
     try {
-      const docSnap = await getDoc(messageRef);
+      const chatDoc = await getDoc(chatRef);
 
-      if (!docSnap.exists()) {
+      if (!chatDoc.exists()) {
+        await setDoc(chatRef, {
+          members: [firstMemberRef, secondMemberRef],
+          chatID: sortedID,
+          latestMessage: "",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+
         await setDoc(messageRef, { messages: [] });
 
-        const currentUserChatRef = doc(db, "chats", currentUser.uid);
-        const secondUserChatRef = doc(db, "chats", id);
-
-        const user1 = await getDoc(firstMemberRef);
-        const user2 = await getDoc(secondMemberRef);
-
-        await updateDoc(currentUserChatRef, {
-          chats: arrayUnion({
-            id: reversedID,
-            members: [user1.data(), user2.data()],
-            latestMessage: messageRef,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-          }),
+        await updateDoc(firstMemberChannelRef, {
+          chats: arrayUnion(chatRef),
         });
 
-        await updateDoc(secondUserChatRef, {
-          chats: arrayUnion({
-            id: reversedID,
-            members: [user1.data(), user2.data()],
-            latestMessage: {},
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
-          }),
+        await updateDoc(secondMemberChannelRef, {
+          chats: arrayUnion(chatRef),
         });
+      } else {
+        console.log(chatDoc.data());
       }
     } catch (err) {
       console.log(err);
@@ -100,9 +97,7 @@ const ChatCard = ({
           )}
         </div>
         <div className="flex justify-between">
-          <p className="text-slate-600 dark:text-white/60">
-            Last message was this
-          </p>
+          <p className="text-slate-600 dark:text-white/60">{latestMessage}</p>
           {type === "chat" && (
             <div className="flex bg-gray-400/60 rounded-full text-white w-6 h-6 items-center justify-center dark:bg-gray-600 dark:text-white">
               <span>3</span>

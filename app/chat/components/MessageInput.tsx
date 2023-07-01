@@ -7,6 +7,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
   serverTimestamp,
   setDoc,
@@ -20,45 +21,36 @@ const MessageInput = () => {
   const { singleChat } = useAppSelector((state) => state.chat);
   const [message, setMessage] = useState("");
 
-  const userID = singleChat.members.find(
-    (user) => user.uid !== currentUser.uid
-  )?.uid;
-
-  const combineID =
-    currentUser.uid > userID
-      ? currentUser.uid + userID
-      : userID + currentUser.uid;
-
   const sendMessage = async () => {
-    const messageDocRef = doc(db, "messages", combineID);
+    const messageDocRef = doc(db, "messages", singleChat.chatID);
     const currentUserDocRef = doc(db, "users", currentUser.uid);
 
     try {
-      await updateDoc(messageDocRef, {
-        messages: arrayUnion({
-          id: uuid(),
-          type: "text",
-          content: message,
-          mediaURL: null,
-          sender: currentUserDocRef,
-          receiver: singleChat.chatId,
-          sendAt: new Date(),
-          readAt: new Date(),
-        }),
-      });
+      const docSnap = await getDoc(messageDocRef);
 
-      await updateDoc(doc(db, "chats", currentUser.uid), {
-        [singleChat.chatId + ".latestMessage"]: {
-          message,
-        },
-        [singleChat.chatId + ".updatedAt"]: serverTimestamp(),
-      });
+      if (!docSnap.exists()) {
+        await setDoc(messageDocRef, { messages: [] });
 
-      await updateDoc(doc(db, "chats", userID), {
-        [singleChat.chatId + ".latestMessage"]: {
-          message,
-        },
-        [singleChat.chatId + ".updatedAt"]: serverTimestamp(),
+        console.log("Doc created");
+      } else {
+        await updateDoc(messageDocRef, {
+          messages: arrayUnion({
+            id: uuid(),
+            type: "text",
+            content: message,
+            mediaURL: null,
+            sender: currentUserDocRef,
+            receiver: singleChat.chatID,
+            sendAt: new Date(),
+            readAt: new Date(),
+          }),
+        });
+        console.log("Doc updated");
+      }
+
+      await updateDoc(doc(db, "chats", singleChat.chatID), {
+        latestMessage: message,
+        updatedAt: serverTimestamp(),
       });
 
       setMessage("");
