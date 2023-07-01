@@ -2,11 +2,22 @@ import { IUser } from "@/lib/interface";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface ChatList {
-  chatId: string;
+  chatID: string;
   createdAt: Date | null;
   updatedAt: Date | null;
   members: IUser[];
-  latestMessage: {};
+  latestMessage: string;
+}
+
+interface IMessage {
+  id: string;
+  type: "text" | "media";
+  content: string;
+  mediaURL: string | null;
+  sender: IUser;
+  receiver: string;
+  sendAt: Date;
+  readAt: Date;
 }
 
 interface InitialStateProp {
@@ -14,6 +25,7 @@ interface InitialStateProp {
   chatUserProfile: boolean;
   chatList: ChatList[];
   singleChat: ChatList;
+  messages: IMessage[];
 }
 
 const initialState: InitialStateProp = {
@@ -21,12 +33,14 @@ const initialState: InitialStateProp = {
   chatUserProfile: false,
   chatList: [],
   singleChat: {
-    chatId: "",
+    chatID: "",
     createdAt: null,
     updatedAt: null,
     members: [],
-    latestMessage: {},
+    latestMessage: "",
   },
+
+  messages: [],
 };
 
 const chatSlice = createSlice({
@@ -48,9 +62,18 @@ const chatSlice = createSlice({
     setSingleChat: (state, action) => {
       state.singleChat = action.payload;
     },
+
+    setMessages: (state, action) => {
+      state.messages = action.payload;
+    },
   },
 });
 
-export const { setOpenChat, openChatUserProfile, setChatList, setSingleChat } =
-  chatSlice.actions;
+export const {
+  setOpenChat,
+  openChatUserProfile,
+  setChatList,
+  setSingleChat,
+  setMessages,
+} = chatSlice.actions;
 export default chatSlice.reducer;

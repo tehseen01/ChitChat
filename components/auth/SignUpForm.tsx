@@ -53,7 +53,7 @@ const SignUpForm = () => {
           photoURL: res.user.photoURL,
         });
 
-        await setDoc(doc(db, "chats", res.user.uid), {});
+        await setDoc(doc(db, "channel", res.user.uid), { chats: [] });
 
         reset();
       }
