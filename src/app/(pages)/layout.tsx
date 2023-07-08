@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "@/components/helper/ThemeProvider";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   clearUser,
@@ -9,16 +9,18 @@ import {
   setCurrentUser,
   setLoading,
 } from "@/redux/slice/authSlice";
-import { onAuthStateChanged } from "firebase/auth";
+import { User, onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import Loading from "../loading";
-import SignIn from "./(auth)/signin/page";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SidebarHeader from "@/components/sidebar/SidebarHeader";
 import ChatList from "@/components/chats/ChatList";
 import Profile from "@/components/profile/Profile";
-import NewChatBtn from "@/components/sidebar/NewChatBtn";
 import Contacts from "@/components/sidebar/Contacts";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import SignIn from "./(auth)/signin/page";
+import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
+import { openContact } from "@/redux/slice/contactSlice";
 
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   const [openProfile, setOpenProfile] = useState(false);
@@ -31,23 +33,49 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   const { isContact } = useAppSelector((state) => state.contact);
 
   const pathname = usePathname();
+  const router = useRouter();
   const matchPath = ["/signin", "/signup"];
 
   useEffect(() => {
-    const unSub = onAuthStateChanged(auth, (user) => {
+    const unSub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const { displayName, email, uid, photoURL } = user;
-        dispatch(setCurrentUser({ displayName, email, uid, photoURL }));
-        dispatch(setLoading(false));
+        const userDocRef = doc(db, "users", user?.uid);
+        const userDocExists = await getDoc(userDocRef);
+
+        if (userDocExists.exists()) {
+          await updateDoc(userDocRef, {
+            isOnline: true,
+          });
+        }
+
+        const userDoc = await getDoc(userDocRef);
+
+        dispatch(setCurrentUser(userDoc.data()));
         dispatch(setAuthStatus(true));
+        dispatch(setAuthStatus(true));
+        dispatch(setLoading(false));
       } else {
-        dispatch(clearUser());
+        if (currentUser) {
+          await updateDoc(doc(db, "users", currentUser?.uid), {
+            isOnline: false,
+          });
+        }
+
+        dispatch(setCurrentUser(null));
+        dispatch(setAuthStatus(false));
         dispatch(setLoading(false));
       }
     });
 
     return () => unSub();
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!authStatus) {
+      router.replace("/signin");
+      return;
+    }
+  }, [authStatus]);
 
   return (
     <>
@@ -78,14 +106,20 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
                       user={currentUser}
                     />
 
-                    <NewChatBtn isHovered={isHovered} />
+                    <button
+                      className="w-10 h-10 rounded-full bg-blue-500 flex-center text-white absolute bottom-5 right-3"
+                      onClick={() => dispatch(openContact(true))}
+                    >
+                      <ChatBubbleOvalLeftEllipsisIcon className="w-8 h-8" />
+                    </button>
+
                     {isContact && <Contacts />}
                   </aside>
                 ) : null}
                 {children}
               </div>
             ) : (
-              <SignIn />
+              <>{children}</>
             )}
           </>
         )}

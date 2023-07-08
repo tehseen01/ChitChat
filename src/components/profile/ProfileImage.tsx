@@ -7,12 +7,16 @@ interface ProfileImageProps {
   displayName: string;
   photoURL: string;
   variant: "small" | "large";
+  color: string;
+  isOnline?: boolean;
 }
 
 const ProfileImage = ({
   displayName,
   photoURL,
   variant,
+  color,
+  isOnline,
 }: ProfileImageProps) => {
   const [firstLetter, setFirstLetter] = useState<string>("");
 
@@ -42,8 +46,9 @@ const ProfileImage = ({
           <div
             className={clsx(
               variant === "small" && "rounded-full",
-              "bg-yellow-500 flex items-center justify-center w-full h-full"
+              "flex items-center justify-center w-full h-full"
             )}
+            style={{ backgroundColor: color }}
           >
             <span
               className={clsx(

@@ -4,6 +4,8 @@ export interface IUser {
   photoURL: string;
   email: string;
   username: string;
+  color: string;
+  isOnline: boolean;
 }
 
 export interface IMessage {
@@ -20,7 +22,6 @@ export interface IMessage {
 export interface IChat {
   chatID: string;
   members: IUser[];
-  latestMessage: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+  lastMessage: string;
+  date: Date | null;
 }

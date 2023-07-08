@@ -8,7 +8,7 @@ import {
   setMessages,
   setSingleChat,
 } from "@/redux/slice/chatSlice";
-import { sortID } from "@/lib/sortID";
+import { sortID } from "@/lib/helper/sortID";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import UserProfile from "@/components/messages/UserProfile";
@@ -43,7 +43,6 @@ const MessageLayout = ({ children }: { children: React.ReactNode }) => {
               const populatedMessage = {
                 ...message,
                 sender: senderData,
-                readAt: message.readAt.toDate().toISOString(),
                 sendAt: message.sendAt.toDate().toISOString(),
               };
               return populatedMessage;

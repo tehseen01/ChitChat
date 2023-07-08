@@ -38,6 +38,7 @@ const SidebarHeader = ({
           <ProfileImage
             displayName={currentUser?.displayName}
             photoURL={currentUser?.photoURL}
+            color={currentUser?.color}
             variant="small"
           />
         </div>

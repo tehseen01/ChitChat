@@ -18,10 +18,9 @@ const initialState: InitialStateProp = {
   chatList: [],
   singleChat: {
     chatID: "",
-    createdAt: null,
-    updatedAt: null,
+    date: null,
     members: [],
-    latestMessage: "",
+    lastMessage: "",
   },
 
   messages: [],

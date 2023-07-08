@@ -34,6 +34,7 @@ const Profile = ({ openProfile, setOpenProfile, user }: ProfileProps) => {
         <ProfileImage
           photoURL={user.photoURL}
           displayName={user.displayName}
+          color={user.color}
           variant="large"
         />
       </div>

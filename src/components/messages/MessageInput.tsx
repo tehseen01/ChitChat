@@ -42,20 +42,26 @@ const MessageInput = () => {
             sender: currentUserDocRef,
             receiver: singleChat.chatID,
             sendAt: new Date(),
-            readAt: new Date(),
+            read: false,
           }),
         });
         console.log("Doc updated");
       }
 
       await updateDoc(doc(db, "chats", singleChat.chatID), {
-        latestMessage: message,
-        updatedAt: serverTimestamp(),
+        lastMessage: message,
+        date: serverTimestamp(),
       });
 
       setMessage("");
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && message) {
+      sendMessage();
     }
   };
 
@@ -67,6 +73,7 @@ const MessageInput = () => {
           placeholder="Type a message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyUp={onKeyUp}
           className="focus:outline-none focus:ring-0 focus:border-0 w-full h-full dark:bg-white bg-gray-200 rounded-full p-3 flex-1 dark:text-black/90"
         />
 

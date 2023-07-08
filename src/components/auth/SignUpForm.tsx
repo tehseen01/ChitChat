@@ -6,9 +6,12 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db, userDocRef } from "@/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { profileColors } from "@/lib/constants";
 import { SignUpFormData, signUpSchema } from "@/lib/validation/signup";
 
 const SignUpForm = () => {
+  const colorIndex = Math.floor(Math.random() * profileColors.length);
+
   const {
     register,
     handleSubmit,
@@ -51,6 +54,7 @@ const SignUpForm = () => {
           username: data.username,
           email: data.email,
           photoURL: res.user.photoURL,
+          color: profileColors[colorIndex],
         });
 
         await setDoc(doc(db, "channel", res.user.uid), { chats: [] });
