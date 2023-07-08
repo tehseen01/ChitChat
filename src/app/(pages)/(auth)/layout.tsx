@@ -2,6 +2,7 @@
 
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AuthLayout({
   children,
@@ -12,10 +13,12 @@ export default function AuthLayout({
 
   const router = useRouter();
 
-  if (authStatus) {
-    router.replace("/");
-    return null;
-  }
+  useEffect(() => {
+    if (authStatus) {
+      router.replace("/");
+      return;
+    }
+  }, [authStatus, router]);
 
   return <main className="fixed inset-0 bg-white">{children}</main>;
 }

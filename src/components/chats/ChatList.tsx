@@ -2,7 +2,13 @@
 
 import React, { useEffect } from "react";
 import ChatCard from "./ChatCard";
-import { getDoc, doc, onSnapshot } from "firebase/firestore";
+import {
+  getDoc,
+  doc,
+  onSnapshot,
+  DocumentReference,
+  DocumentData,
+} from "firebase/firestore";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { db } from "@/lib/firebase";
 import { setChatList, setChatStatus } from "@/redux/slice/chatSlice";
@@ -18,58 +24,51 @@ const ChatList = () => {
   useEffect(() => {
     const channelRef = doc(db, "channel", currentUser.uid);
 
-    const unsubscribe = onSnapshot(channelRef, async (docSnap) => {
+    const unsubscribeList: any = [];
+
+    const getChats = async () => {
       try {
-        if (docSnap.exists()) {
-          const chatData = docSnap.data();
-          const updatedChats = chatData.chats || [];
+        const channelData = await getDoc(channelRef);
+        if (channelData.exists()) {
+          const chatReferences = channelData.data().chats || [];
 
-          const populatedChats: IChat[] = await Promise.all(
-            updatedChats.map(async (chatRef: any) => {
-              const chatDoc = await getDoc(chatRef);
+          const chatSnapshots: any = [];
 
-              if (chatDoc.exists()) {
-                const chatData = chatDoc.data() as any;
+          chatReferences.forEach((chatRef: DocumentReference) => {
+            const chatUnsubscribe = onSnapshot(chatRef, (chatSnapshot) => {
+              chatSnapshots.push(chatSnapshot);
 
-                const memberRefs = chatData.members;
-
-                const memberSnapshots = await Promise.all(
-                  memberRefs.map((memberRef: any) => getDoc(memberRef))
+              if (chatSnapshots.length === chatReferences.length) {
+                const chats = chatSnapshots.map(
+                  (chatSnapshot: DocumentData) => {
+                    const chatData = chatSnapshot.data();
+                    const serializableChat = {
+                      ...chatData,
+                      date: chatData.date.toDate().toISOString(),
+                    };
+                    return serializableChat;
+                  }
                 );
 
-                const members = memberSnapshots.map((memberSnap) =>
-                  memberSnap.data()
-                ) as IUser[];
-
-                const populatedChat: IChat = {
-                  chatID: chatData.chatID,
-                  members: members,
-                  latestMessage: chatData.latestMessage,
-                  createdAt: chatData.createdAt.toDate().toISOString(),
-                  updatedAt: chatData.updatedAt.toDate().toISOString(),
-                };
-
-                return populatedChat;
+                dispatch(setChatStatus(false));
+                dispatch(setChatList(chats));
               }
+            });
 
-              return null; // Chat document doesn't exist
-            })
-          );
-
-          const validPopulatedChats = populatedChats.filter(
-            (chat) => chat !== null
-          );
-
-          dispatch(setChatList(validPopulatedChats));
-          dispatch(setChatStatus(false));
+            unsubscribeList.push(chatUnsubscribe);
+          });
         }
       } catch (err) {
         console.log(err);
       }
-    });
+    };
+
+    getChats();
 
     return () => {
-      unsubscribe();
+      unsubscribeList.forEach((unsubscribe: any) => {
+        unsubscribe();
+      });
     };
   }, [currentUser, dispatch]);
 
@@ -93,8 +92,9 @@ const ChatList = () => {
                     photoURL={user.photoURL}
                     username={user.username}
                     id={user.uid}
-                    latestMessage={chat.latestMessage}
-                    updatedAt={chat.updatedAt}
+                    lastMessage={chat.lastMessage}
+                    date={chat.date}
+                    color={user.color}
                   />
                 </div>
               ));

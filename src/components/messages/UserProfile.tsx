@@ -35,6 +35,7 @@ const UserProfile = ({ isOpenProfile }: { isOpenProfile: boolean }) => {
                 <ProfileImage
                   photoURL={member.photoURL}
                   displayName={member.displayName}
+                  color={member.color}
                   variant="large"
                 />
               </div>

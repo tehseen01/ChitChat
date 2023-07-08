@@ -4,30 +4,17 @@ import BackBtn from "../helper/BackBtn";
 import {
   ArrowLeftIcon,
   MagnifyingGlassIcon,
-  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { openContact, setContacts } from "@/redux/slice/contactSlice";
 import clsx from "clsx";
-import { openAddContactModal } from "@/redux/slice/modalSlice";
-import AddNewContact from "./AddNewContact";
-import {
-  DocumentData,
-  DocumentReference,
-  QuerySnapshot,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-} from "firebase/firestore";
-import { contactDocRef, db } from "@/lib/firebase";
-import { IUser } from "@/lib/interface";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import ChatCard from "../chats/ChatCard";
 
 const Contacts = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isFocus, setIsFocus] = useState(false);
-  const { isAddContactModal } = useAppSelector((state) => state.modal);
   const { currentUser } = useAppSelector((state) => state.auth);
   const { allContacts } = useAppSelector((state) => state.contact);
   const dispatch = useAppDispatch();
@@ -41,29 +28,15 @@ const Contacts = () => {
   useEffect(() => {
     const getContacts = async () => {
       try {
-        // Use onSnapshot to listen for changes in the document
-        const unsubscribe = onSnapshot(
-          doc(db, "contacts", currentUser.uid),
-          async (docSnap) => {
-            if (docSnap.exists()) {
-              const users = await docSnap.data();
+        const userCollRef = collection(db, "users");
 
-              const userPromises = users.userId.map(async (ref: any) => {
-                const userDoc = await getDoc(ref.user);
-                return userDoc.data();
-              });
+        const usersDocs = await getDocs(userCollRef);
 
-              // Wait for all user promises to resolve
-              const userArray = await Promise.all(userPromises);
-              dispatch(setContacts(userArray));
-            } else {
-              console.log("No such documents!");
-            }
-          }
-        );
-
-        // Return a function to unsubscribe from the snapshot listener
-        return unsubscribe;
+        if (!usersDocs.empty) {
+          const users = usersDocs.docs.map((doc) => doc.data());
+          dispatch(setContacts(users));
+          console.log(users);
+        }
       } catch (err) {
         console.log(err);
       }
@@ -109,6 +82,7 @@ const Contacts = () => {
                   displayName={contact.displayName}
                   photoURL={contact.photoURL}
                   username={contact.username}
+                  color={contact.color}
                 />
               </div>
             ))
@@ -118,13 +92,6 @@ const Contacts = () => {
             </div>
           )}
         </Suspense>
-        <button
-          className="w-12 h-12 rounded-full bg-blue-400 flex items-center justify-center absolute bottom-4 right-4 text-white"
-          onClick={() => dispatch(openAddContactModal(true))}
-        >
-          <UserPlusIcon className="h-6 w-6" />
-        </button>
-        {isAddContactModal && <AddNewContact />}
       </div>
     </div>
   );

@@ -35,6 +35,7 @@ const MessageHeader = () => {
                   variant="small"
                   displayName={member.displayName}
                   photoURL={member.photoURL}
+                  color={member.color}
                 />
                 <h1 className="font-medium ">{member.displayName}</h1>
               </div>
